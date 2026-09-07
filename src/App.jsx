@@ -272,9 +272,28 @@ function AdminPanel({ projects, categories, onClose, onAdd, onReload, onLogout, 
     setMessage(editingProject ? 'Proyecto actualizado correctamente.' : 'Proyecto agregado correctamente.')
   }
 
+  async function deleteProject(project) {
+    if (!window.confirm('¿Desea eliminar este proyecto?')) return
+
+    if (!supabase) {
+      setMessage('Supabase no está configurado.')
+      return
+    }
+
+    const { error } = await supabase.from('projects').delete().eq('id', project.id)
+    if (error) {
+      console.error('Could not delete project from Supabase:', error)
+      setMessage(`No se pudo eliminar el proyecto: ${error.message}`)
+      return
+    }
+
+    await onReload()
+    setMessage('Proyecto eliminado correctamente.')
+  }
+
   const formFields = <form onSubmit={submitProject}><label>Título<input name="title" value={form.title} onChange={updateField} placeholder="Ej. Huerto inteligente" /></label><label>Resumen<input name="summary" value={form.summary} onChange={updateField} placeholder="Resumen breve del proyecto" /></label><label>Descripción<textarea name="description" value={form.description} onChange={updateField} placeholder="Descripción del proyecto" /></label><label>Categoría<select name="category" value={form.category} onChange={updateField}>{categories.slice(1).map((item) => <option key={item}>{item}</option>)}</select><ChevronDown size={16} /></label><label>Año<input name="year" type="number" value={form.year} onChange={updateField} /></label><label className="admin-check"><input name="featured" type="checkbox" checked={form.featured} onChange={updateField} /> Destacado</label><label className="admin-check"><input name="published" type="checkbox" checked={form.published} onChange={updateField} /> Publicado</label><button className="button button-red" type="submit"><Plus size={17} /> {editingProject ? 'Guardar cambios' : 'Agregar proyecto'}</button>{editingProject && <button className="button button-dark" type="button" onClick={resetForm}>Cancelar edición</button>}</form>
 
-  const projectList = <div className="admin-list"><strong>{projects.length} proyectos visibles</strong>{orderedProjects.map((project) => <div key={project.id}><span>{project.title}</span><small>{project.category} · {project.year} <button type="button" className="admin-edit" onClick={() => startEditing(project)}>Editar</button></small></div>)}</div>
+  const projectList = <div className="admin-list"><strong>{projects.length} proyectos visibles</strong>{orderedProjects.map((project) => <div key={project.id}><span>{project.title}</span><small>{project.category} · {project.year} <button type="button" className="admin-edit" onClick={() => startEditing(project)}>Editar</button>{dashboard && <button type="button" className="admin-edit" onClick={() => deleteProject(project)}>Eliminar</button>}</small></div>)}</div>
 
   if (dashboard) return <main className="admin-page"><header className="admin-page-header"><a className="brand" href="/" aria-label="FABLAB INACAP Renca, inicio"><span className="brand-mark">F</span><span><strong>FABLAB</strong><small>INACAP RENCA</small></span></a><button className="button button-dark" type="button" onClick={onLogout}>Cerrar sesión</button></header><section className="admin-dashboard"><div className="admin-header"><div><p className="section-kicker">Gestión editorial</p><h1>Panel admin</h1></div></div><p className="admin-note">Sesión autenticada. Este panel es el punto de partida para la gestión de proyectos.</p><div className="admin-panel">{formFields}{message && <p className="success-message">{message}</p>}{projectList}</div></section></main>
   return <div className="modal-backdrop" role="presentation" onClick={onClose}><aside className="admin-panel" role="dialog" aria-modal="true" aria-label="Panel administrador" onClick={(event) => event.stopPropagation()}><div className="admin-header"><div><p className="section-kicker">Gestión editorial</p><h2>Panel admin</h2></div><button className="close-button" type="button" onClick={onClose} aria-label="Cerrar"><X size={20} /></button></div><p className="admin-note">Vista MVP para revisar y agregar proyectos.</p>{formFields}{message && <p className="success-message">{message}</p>}{projectList}</aside></div>
