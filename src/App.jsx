@@ -206,53 +206,78 @@ function App() {
 }
 
 function AdminPanel({ projects, categories, onClose, onAdd, onReload, onLogout, dashboard = false }) {
-  const [title, setTitle] = useState('')
-  const [category, setCategory] = useState(categories[1] ?? '')
+  const emptyForm = { title: '', summary: '', description: '', category: categories[1] ?? '', year: new Date().getFullYear(), featured: false, published: true }
+  const [form, setForm] = useState(emptyForm)
+  const [editingProject, setEditingProject] = useState(null)
   const [message, setMessage] = useState('')
   const orderedProjects = [...projects].sort((firstProject, secondProject) => {
     const firstDate = firstProject.created_at ? Date.parse(firstProject.created_at) : 0
     const secondDate = secondProject.created_at ? Date.parse(secondProject.created_at) : 0
     return secondDate - firstDate
   })
-  async function addProject(event) {
+
+  function updateField(event) {
+    const { name, type, value, checked } = event.target
+    setForm((current) => ({ ...current, [name]: type === 'checkbox' ? checked : value }))
+  }
+
+  function startEditing(project) {
+    setEditingProject(project)
+    setForm({
+      title: project.title ?? '',
+      summary: project.summary ?? project.excerpt ?? '',
+      description: project.description ?? '',
+      category: project.category ?? categories[1] ?? '',
+      year: project.year ?? new Date().getFullYear(),
+      featured: Boolean(project.featured),
+      published: project.published !== false,
+    })
+    setMessage('')
+  }
+
+  function resetForm() {
+    setEditingProject(null)
+    setForm(emptyForm)
+  }
+
+  async function submitProject(event) {
     event.preventDefault()
-    if (!title.trim()) return
+    if (!form.title.trim()) return
 
-    if (dashboard) {
-      if (!supabase) {
-        setMessage('Supabase no está configurado.')
-        return
-      }
-
-      const { error } = await supabase.from('projects').insert({
-        title: title.trim(),
-        category,
-        summary: '',
-        description: '',
-        year: new Date().getFullYear(),
-        featured: false,
-        published: true,
-      })
-
-      if (error) {
-        console.error('Could not create project in Supabase:', error)
-        setMessage(`No se pudo crear el proyecto: ${error.message}`)
-        return
-      }
-
-      await onReload()
-      setTitle('')
-      setCategory(categories[1] ?? '')
-      setMessage('Proyecto agregado correctamente.')
+    if (!dashboard) {
+      onAdd({ id: `local-${Date.now()}`, title: form.title.trim(), category: form.category, year: form.year, excerpt: form.summary, image_url: null, featured: form.featured })
+      resetForm()
+      setMessage('Proyecto agregado en esta sesión. Conecta Supabase para persistirlo.')
       return
     }
 
-    onAdd({ id: `local-${Date.now()}`, title, category, year: new Date().getFullYear(), excerpt: 'Nuevo proyecto pendiente de publicación.', image: demoProjects[1].image, featured: false })
-    setTitle('')
-    setMessage('Proyecto agregado en esta sesión. Conecta Supabase para persistirlo.')
+    if (!supabase) {
+      setMessage('Supabase no está configurado.')
+      return
+    }
+
+    const projectData = { title: form.title.trim(), summary: form.summary, description: form.description, category: form.category, year: Number(form.year), featured: form.featured, published: form.published }
+    const { error } = editingProject
+      ? await supabase.from('projects').update(projectData).eq('id', editingProject.id)
+      : await supabase.from('projects').insert(projectData)
+
+    if (error) {
+      console.error(`Could not ${editingProject ? 'update' : 'create'} project in Supabase:`, error)
+      setMessage(`No se pudo ${editingProject ? 'actualizar' : 'crear'} el proyecto: ${error.message}`)
+      return
+    }
+
+    await onReload()
+    resetForm()
+    setMessage(editingProject ? 'Proyecto actualizado correctamente.' : 'Proyecto agregado correctamente.')
   }
-  if (dashboard) return <main className="admin-page"><header className="admin-page-header"><a className="brand" href="/" aria-label="FABLAB INACAP Renca, inicio"><span className="brand-mark">F</span><span><strong>FABLAB</strong><small>INACAP RENCA</small></span></a><button className="button button-dark" type="button" onClick={onLogout}>Cerrar sesión</button></header><section className="admin-dashboard"><div className="admin-header"><div><p className="section-kicker">Gestión editorial</p><h1>Panel admin</h1></div></div><p className="admin-note">Sesión autenticada. Este panel es el punto de partida para la gestión de proyectos.</p><div className="admin-panel"><form onSubmit={addProject}><label>Nombre del proyecto<input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Ej. Huerto inteligente" /></label><label>Categoría<select value={category} onChange={(event) => setCategory(event.target.value)}>{categories.slice(1).map((item) => <option key={item}>{item}</option>)}</select><ChevronDown size={16} /></label><button className="button button-red" type="submit"><Plus size={17} /> Agregar proyecto</button></form>{message && <p className="success-message">{message}</p>}<div className="admin-list"><strong>{projects.length} proyectos visibles</strong>{orderedProjects.map((project) => <div key={project.id}><span>{project.title}</span><small>{project.category} · {project.year}</small></div>)}</div></div></section></main>
-  return <div className="modal-backdrop" role="presentation" onClick={onClose}><aside className="admin-panel" role="dialog" aria-modal="true" aria-label="Panel administrador" onClick={(event) => event.stopPropagation()}><div className="admin-header"><div><p className="section-kicker">Gestión editorial</p><h2>Panel admin</h2></div><button className="close-button" type="button" onClick={onClose} aria-label="Cerrar"><X size={20} /></button></div><p className="admin-note">Vista MVP para revisar y agregar proyectos. La autenticación y persistencia usan Supabase cuando configures las variables de entorno.</p><form onSubmit={addProject}><label>Nombre del proyecto<input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Ej. Huerto inteligente" /></label><label>Categoría<select value={category} onChange={(event) => setCategory(event.target.value)}>{categories.slice(1).map((item) => <option key={item}>{item}</option>)}</select><ChevronDown size={16} /></label><button className="button button-red" type="submit"><Plus size={17} /> Agregar proyecto</button></form>{message && <p className="success-message">{message}</p>}<div className="admin-list"><strong>{projects.length} proyectos visibles</strong>{orderedProjects.map((project) => <div key={project.id}><span>{project.title}</span><small>{project.category} · {project.year}</small></div>)}</div></aside></div>
+
+  const formFields = <form onSubmit={submitProject}><label>Título<input name="title" value={form.title} onChange={updateField} placeholder="Ej. Huerto inteligente" /></label><label>Resumen<input name="summary" value={form.summary} onChange={updateField} placeholder="Resumen breve del proyecto" /></label><label>Descripción<textarea name="description" value={form.description} onChange={updateField} placeholder="Descripción del proyecto" /></label><label>Categoría<select name="category" value={form.category} onChange={updateField}>{categories.slice(1).map((item) => <option key={item}>{item}</option>)}</select><ChevronDown size={16} /></label><label>Año<input name="year" type="number" value={form.year} onChange={updateField} /></label><label className="admin-check"><input name="featured" type="checkbox" checked={form.featured} onChange={updateField} /> Destacado</label><label className="admin-check"><input name="published" type="checkbox" checked={form.published} onChange={updateField} /> Publicado</label><button className="button button-red" type="submit"><Plus size={17} /> {editingProject ? 'Guardar cambios' : 'Agregar proyecto'}</button>{editingProject && <button className="button button-dark" type="button" onClick={resetForm}>Cancelar edición</button>}</form>
+
+  const projectList = <div className="admin-list"><strong>{projects.length} proyectos visibles</strong>{orderedProjects.map((project) => <div key={project.id}><span>{project.title}</span><small>{project.category} · {project.year} <button type="button" className="admin-edit" onClick={() => startEditing(project)}>Editar</button></small></div>)}</div>
+
+  if (dashboard) return <main className="admin-page"><header className="admin-page-header"><a className="brand" href="/" aria-label="FABLAB INACAP Renca, inicio"><span className="brand-mark">F</span><span><strong>FABLAB</strong><small>INACAP RENCA</small></span></a><button className="button button-dark" type="button" onClick={onLogout}>Cerrar sesión</button></header><section className="admin-dashboard"><div className="admin-header"><div><p className="section-kicker">Gestión editorial</p><h1>Panel admin</h1></div></div><p className="admin-note">Sesión autenticada. Este panel es el punto de partida para la gestión de proyectos.</p><div className="admin-panel">{formFields}{message && <p className="success-message">{message}</p>}{projectList}</div></section></main>
+  return <div className="modal-backdrop" role="presentation" onClick={onClose}><aside className="admin-panel" role="dialog" aria-modal="true" aria-label="Panel administrador" onClick={(event) => event.stopPropagation()}><div className="admin-header"><div><p className="section-kicker">Gestión editorial</p><h2>Panel admin</h2></div><button className="close-button" type="button" onClick={onClose} aria-label="Cerrar"><X size={20} /></button></div><p className="admin-note">Vista MVP para revisar y agregar proyectos.</p>{formFields}{message && <p className="success-message">{message}</p>}{projectList}</aside></div>
 }
 
 export default App
