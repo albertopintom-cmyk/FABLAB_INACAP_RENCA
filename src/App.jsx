@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowUpRight, AtSign, ChevronDown, Mail, Menu, Plus, Search, X } from 'lucide-react'
 import { supabase } from './lib/supabase'
 import heroImage from './assets/hero.png'
@@ -10,8 +10,6 @@ const demoProjects = [
   { id: 'demo-3', title: 'Manos que conectan', category: 'Innovación social', year: 2024, excerpt: 'Prototipos inclusivos desarrollados junto a la comunidad de Renca.', image_url: 'https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=1200&q=85', featured: false },
   { id: 'demo-4', title: 'Laboratorio en movimiento', category: 'Diseño', year: 2023, excerpt: 'Una experiencia móvil para acercar la fabricación digital a los barrios.', image_url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1200&q=85', featured: false },
 ]
-const categories = ['Todos', 'Electrónica', 'Fabricación digital', 'Innovación social', 'Diseño']
-
 function LoginPage({ onAuthenticated }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -44,7 +42,7 @@ function LoginPage({ onAuthenticated }) {
   return <main className="auth-page"><section className="auth-card"><a className="brand" href="#inicio" aria-label="FABLAB INACAP Renca, inicio"><span className="brand-mark">F</span><span><strong>FABLAB</strong><small>INACAP RENCA</small></span></a><p className="section-kicker">Acceso administrativo</p><h1>Ingresar al panel</h1><p className="auth-intro">Administra los proyectos publicados del FabLab INACAP Renca.</p><form onSubmit={signIn}><label>Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required /></label><label>Contraseña<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="current-password" required /></label><button className="button button-red" type="submit" disabled={loading}>{loading ? 'Ingresando...' : 'Iniciar sesión'}</button></form>{error && <p className="auth-error" role="alert">{error}</p>}</section></main>
 }
 
-function AdminRoute({ projects, onAdd }) {
+function AdminRoute({ projects, onAdd, onReload }) {
   const [session, setSession] = useState(null)
   const [checking, setChecking] = useState(true)
   const [authorized, setAuthorized] = useState(false)
@@ -108,7 +106,11 @@ function AdminRoute({ projects, onAdd }) {
 
   if (checking) return <main className="auth-page"><p className="auth-status">Verificando sesión...</p></main>
   if (!session || !authorized) return <LoginPage onAuthenticated={handleAuthenticated} />
-  return <AdminPanel projects={projects} onClose={logout} onAdd={onAdd} onLogout={logout} dashboard />
+  return <AdminPanel projects={projects} categories={getCategories(projects)} onClose={logout} onAdd={onAdd} onReload={onReload} onLogout={logout} dashboard />
+}
+
+function getCategories(projects) {
+  return ['Todos', ...new Set(projects.map((project) => project.category).filter(Boolean))]
 }
 
 function ProjectCard({ project, index, featured, onSelect }) {
@@ -130,13 +132,13 @@ function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [query, setQuery] = useState('')
+  const categories = useMemo(() => getCategories(projects), [projects])
 
-  useEffect(() => {
-    async function loadProjects() {
+  const loadProjects = useCallback(async () => {
       if (!supabase) {
         console.error('Supabase client is not configured. Using demo projects.')
         setProjects(demoProjects)
-        return
+        return demoProjects
       }
 
       try {
@@ -159,17 +161,22 @@ function App() {
           console.error("Supabase error details:", error.details)
           console.error('Could not load projects from Supabase:', error)
           setProjects(demoProjects)
-          return
+          return demoProjects
         }
 
-        setProjects(data?.length ? data : demoProjects)
+        const nextProjects = data?.length ? data : demoProjects
+        setProjects(nextProjects)
+        return nextProjects
       } catch (error) {
         console.error('Unexpected error loading projects from Supabase:', error)
         setProjects(demoProjects)
+        return demoProjects
       }
-    }
-    loadProjects()
   }, [])
+
+  useEffect(() => {
+    loadProjects()
+  }, [loadProjects])
 
   const filteredProjects = useMemo(() => projects.filter((project) => {
     const matchesCategory = activeCategory === 'Todos' || project.category === activeCategory
@@ -179,7 +186,7 @@ function App() {
   }), [activeCategory, projects, query])
 
   if (window.location.pathname === '/admin') {
-    return <AdminRoute projects={projects} onAdd={(project) => setProjects((current) => [project, ...current])} />
+    return <AdminRoute projects={projects} onAdd={(project) => setProjects((current) => [project, ...current])} onReload={loadProjects} />
   }
 
   return (
@@ -193,24 +200,59 @@ function App() {
       </main>
       <SiteFooter />
       {selectedProject && <div className="modal-backdrop" role="presentation" onClick={() => setSelectedProject(null)}><article className="project-modal" role="dialog" aria-modal="true" aria-label={selectedProject.title} onClick={(event) => event.stopPropagation()}><button className="close-button" type="button" onClick={() => setSelectedProject(null)} aria-label="Cerrar"><X size={20} /></button><img src={selectedProject.image_url || heroImage} alt="" /><div className="modal-copy"><div className="project-meta"><span>{selectedProject.category}</span><span>{selectedProject.year}</span></div><h2>{selectedProject.title}</h2><p>{selectedProject.excerpt}</p><a href="mailto:fablab.renca@inacap.cl?subject=Consulta sobre proyecto">Conocer más <ArrowUpRight size={17} /></a></div></article></div>}
-      {isAdminOpen && <AdminPanel projects={projects} onClose={() => setIsAdminOpen(false)} onAdd={(project) => setProjects((current) => [project, ...current])} />}
+      {isAdminOpen && <AdminPanel projects={projects} categories={categories} onClose={() => setIsAdminOpen(false)} onAdd={(project) => setProjects((current) => [project, ...current])} />}
     </div>
   )
 }
 
-function AdminPanel({ projects, onClose, onAdd, onLogout, dashboard = false }) {
+function AdminPanel({ projects, categories, onClose, onAdd, onReload, onLogout, dashboard = false }) {
   const [title, setTitle] = useState('')
-  const [category, setCategory] = useState('Diseño')
+  const [category, setCategory] = useState(categories[1] ?? '')
   const [message, setMessage] = useState('')
-  function addProject(event) {
+  const orderedProjects = [...projects].sort((firstProject, secondProject) => {
+    const firstDate = firstProject.created_at ? Date.parse(firstProject.created_at) : 0
+    const secondDate = secondProject.created_at ? Date.parse(secondProject.created_at) : 0
+    return secondDate - firstDate
+  })
+  async function addProject(event) {
     event.preventDefault()
     if (!title.trim()) return
+
+    if (dashboard) {
+      if (!supabase) {
+        setMessage('Supabase no está configurado.')
+        return
+      }
+
+      const { error } = await supabase.from('projects').insert({
+        title: title.trim(),
+        category,
+        summary: '',
+        description: '',
+        year: new Date().getFullYear(),
+        featured: false,
+        published: true,
+      })
+
+      if (error) {
+        console.error('Could not create project in Supabase:', error)
+        setMessage(`No se pudo crear el proyecto: ${error.message}`)
+        return
+      }
+
+      await onReload()
+      setTitle('')
+      setCategory(categories[1] ?? '')
+      setMessage('Proyecto agregado correctamente.')
+      return
+    }
+
     onAdd({ id: `local-${Date.now()}`, title, category, year: new Date().getFullYear(), excerpt: 'Nuevo proyecto pendiente de publicación.', image: demoProjects[1].image, featured: false })
     setTitle('')
     setMessage('Proyecto agregado en esta sesión. Conecta Supabase para persistirlo.')
   }
-  if (dashboard) return <main className="admin-page"><header className="admin-page-header"><a className="brand" href="/" aria-label="FABLAB INACAP Renca, inicio"><span className="brand-mark">F</span><span><strong>FABLAB</strong><small>INACAP RENCA</small></span></a><button className="button button-dark" type="button" onClick={onLogout}>Cerrar sesión</button></header><section className="admin-dashboard"><div className="admin-header"><div><p className="section-kicker">Gestión editorial</p><h1>Panel admin</h1></div></div><p className="admin-note">Sesión autenticada. Este panel es el punto de partida para la gestión de proyectos.</p><div className="admin-panel"><form onSubmit={addProject}><label>Nombre del proyecto<input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Ej. Huerto inteligente" /></label><label>Categoría<select value={category} onChange={(event) => setCategory(event.target.value)}>{categories.slice(1).map((item) => <option key={item}>{item}</option>)}</select><ChevronDown size={16} /></label><button className="button button-red" type="submit"><Plus size={17} /> Agregar proyecto</button></form>{message && <p className="success-message">{message}</p>}<div className="admin-list"><strong>{projects.length} proyectos visibles</strong>{projects.slice(0, 4).map((project) => <div key={project.id}><span>{project.title}</span><small>{project.category} · {project.year}</small></div>)}</div></div></section></main>
-  return <div className="modal-backdrop" role="presentation" onClick={onClose}><aside className="admin-panel" role="dialog" aria-modal="true" aria-label="Panel administrador" onClick={(event) => event.stopPropagation()}><div className="admin-header"><div><p className="section-kicker">Gestión editorial</p><h2>Panel admin</h2></div><button className="close-button" type="button" onClick={onClose} aria-label="Cerrar"><X size={20} /></button></div><p className="admin-note">Vista MVP para revisar y agregar proyectos. La autenticación y persistencia usan Supabase cuando configures las variables de entorno.</p><form onSubmit={addProject}><label>Nombre del proyecto<input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Ej. Huerto inteligente" /></label><label>Categoría<select value={category} onChange={(event) => setCategory(event.target.value)}>{categories.slice(1).map((item) => <option key={item}>{item}</option>)}</select><ChevronDown size={16} /></label><button className="button button-red" type="submit"><Plus size={17} /> Agregar proyecto</button></form>{message && <p className="success-message">{message}</p>}<div className="admin-list"><strong>{projects.length} proyectos visibles</strong>{projects.slice(0, 4).map((project) => <div key={project.id}><span>{project.title}</span><small>{project.category} · {project.year}</small></div>)}</div></aside></div>
+  if (dashboard) return <main className="admin-page"><header className="admin-page-header"><a className="brand" href="/" aria-label="FABLAB INACAP Renca, inicio"><span className="brand-mark">F</span><span><strong>FABLAB</strong><small>INACAP RENCA</small></span></a><button className="button button-dark" type="button" onClick={onLogout}>Cerrar sesión</button></header><section className="admin-dashboard"><div className="admin-header"><div><p className="section-kicker">Gestión editorial</p><h1>Panel admin</h1></div></div><p className="admin-note">Sesión autenticada. Este panel es el punto de partida para la gestión de proyectos.</p><div className="admin-panel"><form onSubmit={addProject}><label>Nombre del proyecto<input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Ej. Huerto inteligente" /></label><label>Categoría<select value={category} onChange={(event) => setCategory(event.target.value)}>{categories.slice(1).map((item) => <option key={item}>{item}</option>)}</select><ChevronDown size={16} /></label><button className="button button-red" type="submit"><Plus size={17} /> Agregar proyecto</button></form>{message && <p className="success-message">{message}</p>}<div className="admin-list"><strong>{projects.length} proyectos visibles</strong>{orderedProjects.map((project) => <div key={project.id}><span>{project.title}</span><small>{project.category} · {project.year}</small></div>)}</div></div></section></main>
+  return <div className="modal-backdrop" role="presentation" onClick={onClose}><aside className="admin-panel" role="dialog" aria-modal="true" aria-label="Panel administrador" onClick={(event) => event.stopPropagation()}><div className="admin-header"><div><p className="section-kicker">Gestión editorial</p><h2>Panel admin</h2></div><button className="close-button" type="button" onClick={onClose} aria-label="Cerrar"><X size={20} /></button></div><p className="admin-note">Vista MVP para revisar y agregar proyectos. La autenticación y persistencia usan Supabase cuando configures las variables de entorno.</p><form onSubmit={addProject}><label>Nombre del proyecto<input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Ej. Huerto inteligente" /></label><label>Categoría<select value={category} onChange={(event) => setCategory(event.target.value)}>{categories.slice(1).map((item) => <option key={item}>{item}</option>)}</select><ChevronDown size={16} /></label><button className="button button-red" type="submit"><Plus size={17} /> Agregar proyecto</button></form>{message && <p className="success-message">{message}</p>}<div className="admin-list"><strong>{projects.length} proyectos visibles</strong>{orderedProjects.map((project) => <div key={project.id}><span>{project.title}</span><small>{project.category} · {project.year}</small></div>)}</div></aside></div>
 }
 
 export default App
