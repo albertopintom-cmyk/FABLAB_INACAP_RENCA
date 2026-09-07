@@ -2,6 +2,33 @@
 
 Las entradas más recientes se agregan al inicio. El documento histórico existente se conserva sin modificaciones.
 
+## 2026-09-07 — Projects Module Completed
+
+The FABLAB INACAP RENCA projects module reached MVP completion.
+
+### Completed
+
+- Supabase integration completed.
+- `projects` table created and validated.
+- Row Level Security (RLS) configured.
+- Public project catalog connected to Supabase.
+- Dynamic categories implemented.
+- Public project visualization operational.
+- Supabase Storage bucket "projects" created.
+- Public image URLs supported through `image_url`.
+- Private administration module implemented.
+- Supabase Auth login implemented.
+- `admin_users` table created.
+- Protected `/admin` access implemented.
+- CRUD operations completed:
+	- Create
+	- Read
+	- Update
+	- Delete
+- Project creation operational from admin panel.
+- Project editing operational from admin panel.
+- Project deletion operational from admin panel.
+
 ## 2026-09-06 — Project Images Strategy Approved
 
 - Supabase Storage will be used for project images.

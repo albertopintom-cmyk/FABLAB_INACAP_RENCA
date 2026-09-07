@@ -113,6 +113,15 @@ function getCategories(projects) {
   return ['Todos', ...new Set(projects.map((project) => project.category).filter(Boolean))]
 }
 
+function slugifyProjectTitle(title) {
+  return title
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+}
+
 function ProjectCard({ project, index, featured, onSelect }) {
   return <article className={featured ? 'project-card project-card-featured' : 'project-card'} onClick={() => onSelect(project)}><div className="project-image"><img src={project.image_url || heroImage} alt="" /><span>{String(index + 1).padStart(2, '0')}</span></div><div className="project-meta"><span>{project.category}</span><span>{project.year}</span></div><h3>{project.title}</h3><p>{project.excerpt}</p><button type="button" className="read-more" aria-label={`Ver ${project.title}`}><ArrowUpRight size={18} /></button></article>
 }
@@ -209,6 +218,7 @@ function AdminPanel({ projects, categories, onClose, onAdd, onReload, onLogout, 
   const emptyForm = { title: '', summary: '', description: '', category: categories[1] ?? '', year: new Date().getFullYear(), featured: false, published: true }
   const [form, setForm] = useState(emptyForm)
   const [editingProject, setEditingProject] = useState(null)
+  const [imageFile, setImageFile] = useState(null)
   const [message, setMessage] = useState('')
   const orderedProjects = [...projects].sort((firstProject, secondProject) => {
     const firstDate = firstProject.created_at ? Date.parse(firstProject.created_at) : 0
@@ -223,6 +233,7 @@ function AdminPanel({ projects, categories, onClose, onAdd, onReload, onLogout, 
 
   function startEditing(project) {
     setEditingProject(project)
+    setImageFile(null)
     setForm({
       title: project.title ?? '',
       summary: project.summary ?? project.excerpt ?? '',
@@ -238,6 +249,34 @@ function AdminPanel({ projects, categories, onClose, onAdd, onReload, onLogout, 
   function resetForm() {
     setEditingProject(null)
     setForm(emptyForm)
+    setImageFile(null)
+  }
+
+  async function uploadProjectImage() {
+    if (!imageFile) return editingProject?.image_url ?? null
+
+    const fileExtension = imageFile.name.split('.').pop()?.toLowerCase() || 'jpg'
+    const now = new Date()
+    const timestamp = [
+      now.getFullYear(),
+      String(now.getMonth() + 1).padStart(2, '0'),
+      String(now.getDate()).padStart(2, '0'),
+    ].join('') + `-${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`
+    const filePath = `projects/${slugifyProjectTitle(form.title)}-${timestamp}.${fileExtension}`
+    console.log("Uploading image:", imageFile.name)
+    const { data: uploadData, error: uploadError } = await supabase.storage.from('projects').upload(filePath, imageFile, { upsert: false })
+    console.log("Upload data:", uploadData)
+    if (uploadError) {
+      console.error("Upload error:", uploadError)
+      console.error("Upload error message:", uploadError?.message)
+      console.error("Upload error code:", uploadError?.statusCode || uploadError?.code)
+      console.error("Upload error details:", uploadError)
+      throw uploadError
+    }
+
+    const { data } = supabase.storage.from('projects').getPublicUrl(filePath)
+    console.log("Public image URL:", data.publicUrl)
+    return data.publicUrl
   }
 
   async function submitProject(event) {
@@ -256,10 +295,32 @@ function AdminPanel({ projects, categories, onClose, onAdd, onReload, onLogout, 
       return
     }
 
-    const projectData = { title: form.title.trim(), summary: form.summary, description: form.description, category: form.category, year: Number(form.year), featured: form.featured, published: form.published }
-    const { error } = editingProject
-      ? await supabase.from('projects').update(projectData).eq('id', editingProject.id)
-      : await supabase.from('projects').insert(projectData)
+    let imageUrl
+    try {
+      imageUrl = await uploadProjectImage()
+    } catch (error) {
+      console.error('Could not upload project image:', error)
+      setMessage(`No se pudo subir la imagen: ${error.message}`)
+      return
+    }
+
+    const payload = { title: form.title.trim(), summary: form.summary, description: form.description, category: form.category, year: Number(form.year), featured: form.featured, published: form.published, ...(imageUrl ? { image_url: imageUrl } : {}) }
+    let data
+    let error
+
+    if (editingProject) {
+      console.log("Updating project:", editingProject?.id)
+      console.log("Update payload:", payload)
+      const updateResult = await supabase.from('projects').update(payload).eq('id', editingProject.id)
+      data = updateResult.data
+      error = updateResult.error
+      console.log("Update result:", data)
+      if (error) console.error("Update error:", error)
+    } else {
+      const insertResult = await supabase.from('projects').insert(payload)
+      data = insertResult.data
+      error = insertResult.error
+    }
 
     if (error) {
       console.error(`Could not ${editingProject ? 'update' : 'create'} project in Supabase:`, error)
@@ -280,7 +341,11 @@ function AdminPanel({ projects, categories, onClose, onAdd, onReload, onLogout, 
       return
     }
 
-    const { error } = await supabase.from('projects').delete().eq('id', project.id)
+    const projectId = project.id
+    console.log("Deleting project id:", projectId)
+    const { data, error } = await supabase.from('projects').delete().eq('id', projectId)
+    console.log("Delete data:", data)
+    console.log("Delete error:", error)
     if (error) {
       console.error('Could not delete project from Supabase:', error)
       setMessage(`No se pudo eliminar el proyecto: ${error.message}`)
@@ -291,7 +356,7 @@ function AdminPanel({ projects, categories, onClose, onAdd, onReload, onLogout, 
     setMessage('Proyecto eliminado correctamente.')
   }
 
-  const formFields = <form onSubmit={submitProject}><label>Título<input name="title" value={form.title} onChange={updateField} placeholder="Ej. Huerto inteligente" /></label><label>Resumen<input name="summary" value={form.summary} onChange={updateField} placeholder="Resumen breve del proyecto" /></label><label>Descripción<textarea name="description" value={form.description} onChange={updateField} placeholder="Descripción del proyecto" /></label><label>Categoría<select name="category" value={form.category} onChange={updateField}>{categories.slice(1).map((item) => <option key={item}>{item}</option>)}</select><ChevronDown size={16} /></label><label>Año<input name="year" type="number" value={form.year} onChange={updateField} /></label><label className="admin-check"><input name="featured" type="checkbox" checked={form.featured} onChange={updateField} /> Destacado</label><label className="admin-check"><input name="published" type="checkbox" checked={form.published} onChange={updateField} /> Publicado</label><button className="button button-red" type="submit"><Plus size={17} /> {editingProject ? 'Guardar cambios' : 'Agregar proyecto'}</button>{editingProject && <button className="button button-dark" type="button" onClick={resetForm}>Cancelar edición</button>}</form>
+  const formFields = <form onSubmit={submitProject}><label>Título<input name="title" value={form.title} onChange={updateField} placeholder="Ej. Huerto inteligente" /></label><label>Resumen<input name="summary" value={form.summary} onChange={updateField} placeholder="Resumen breve del proyecto" /></label><label>Descripción<textarea name="description" value={form.description} onChange={updateField} placeholder="Descripción del proyecto" /></label><label>Categoría<select name="category" value={form.category} onChange={updateField}>{categories.slice(1).map((item) => <option key={item}>{item}</option>)}</select><ChevronDown size={16} /></label><label>Año<input name="year" type="number" value={form.year} onChange={updateField} /></label><label>Imagen<input type="file" accept="image/*" onChange={(event) => setImageFile(event.target.files?.[0] ?? null)} /></label><label className="admin-check"><input name="featured" type="checkbox" checked={form.featured} onChange={updateField} /> Destacado</label><label className="admin-check"><input name="published" type="checkbox" checked={form.published} onChange={updateField} /> Publicado</label><button className="button button-red" type="submit"><Plus size={17} /> {editingProject ? 'Guardar cambios' : 'Agregar proyecto'}</button>{editingProject && <button className="button button-dark" type="button" onClick={resetForm}>Cancelar edición</button>}</form>
 
   const projectList = <div className="admin-list"><strong>{projects.length} proyectos visibles</strong>{orderedProjects.map((project) => <div key={project.id}><span>{project.title}</span><small>{project.category} · {project.year} <button type="button" className="admin-edit" onClick={() => startEditing(project)}>Editar</button>{dashboard && <button type="button" className="admin-edit" onClick={() => deleteProject(project)}>Eliminar</button>}</small></div>)}</div>
 
