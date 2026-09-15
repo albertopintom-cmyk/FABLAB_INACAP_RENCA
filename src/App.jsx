@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowUpRight, AtSign, ChevronDown, Mail, Menu, Plus, Search, X } from 'lucide-react'
 import { supabase } from './lib/supabase'
 import NewsPage from './pages/NewsPage'
+import ProjectsPage from './pages/ProjectsPage'
 import heroImage from './assets/hero.png'
 import './App.css'
 
@@ -188,12 +189,7 @@ function App() {
     loadProjects()
   }, [loadProjects])
 
-  const filteredProjects = useMemo(() => projects.filter((project) => {
-    const matchesCategory = activeCategory === 'Todos' || project.category === activeCategory
-    const normalizedQuery = query.toLowerCase().trim()
-    const matchesQuery = !normalizedQuery || `${project.title} ${project.excerpt}`.toLowerCase().includes(normalizedQuery)
-    return matchesCategory && matchesQuery
-  }), [activeCategory, projects, query])
+  const featuredProjects = useMemo(() => projects.filter((project) => project.featured).slice(0, 6), [projects])
 
   if (window.location.pathname === '/admin') {
     return <AdminRoute projects={projects} onAdd={(project) => setProjects((current) => [project, ...current])} onReload={loadProjects} />
@@ -203,13 +199,17 @@ function App() {
     return <NewsPage />
   }
 
+  if (window.location.pathname === '/proyectos') {
+    return <ProjectsPage />
+  }
+
   return (
     <div className="site-shell">
-      <header className="site-header"><a className="brand" href="#inicio" aria-label="FABLAB INACAP Renca, inicio"><span className="brand-mark">F</span><span><strong>FABLAB</strong><small>INACAP RENCA</small></span></a><button className="menu-toggle" type="button" onClick={() => setMenuOpen(!menuOpen)} aria-label="Abrir menú"><Menu size={20} /></button><nav className={menuOpen ? 'main-nav is-open' : 'main-nav'}><a href="#proyectos" onClick={() => setMenuOpen(false)}>Proyectos</a><a href="#comunidad" onClick={() => setMenuOpen(false)}>Comunidad</a><a href="#fablab" onClick={() => setMenuOpen(false)}>El FabLab</a><a href="/noticias" onClick={() => setMenuOpen(false)}>Noticias</a><a href="#contacto" onClick={() => setMenuOpen(false)}>Contacto</a><button className="admin-link" type="button" onClick={() => setIsAdminOpen(true)}>Panel admin <ArrowUpRight size={15} /></button></nav></header>
+      <header className="site-header"><a className="brand" href="#inicio" aria-label="FABLAB INACAP Renca, inicio"><span className="brand-mark">F</span><span><strong>FABLAB</strong><small>INACAP RENCA</small></span></a><button className="menu-toggle" type="button" onClick={() => setMenuOpen(!menuOpen)} aria-label="Abrir menú"><Menu size={20} /></button><nav className={menuOpen ? 'main-nav is-open' : 'main-nav'}><a href="/proyectos" onClick={() => setMenuOpen(false)}>Proyectos</a><a href="#comunidad" onClick={() => setMenuOpen(false)}>Comunidad</a><a href="#fablab" onClick={() => setMenuOpen(false)}>El FabLab</a><a href="/noticias" onClick={() => setMenuOpen(false)}>Noticias</a><a href="#contacto" onClick={() => setMenuOpen(false)}>Contacto</a><button className="admin-link" type="button" onClick={() => setIsAdminOpen(true)}>Panel admin <ArrowUpRight size={15} /></button></nav></header>
       <main>
         <section className="hero" id="inicio"><div className="hero-copy"><p className="eyebrow"><span /> Fabricar para transformar</p><h1>Ideas que toman<br /><em>forma.</em></h1><p className="hero-text">Conocemos, prototipamos y compartimos proyectos que nacen en el FabLab INACAP Renca.</p><a className="button button-dark" href="#proyectos">Explorar proyectos <ArrowUpRight size={17} /></a></div><div className="hero-visual" aria-label="Estudiantes trabajando en el FabLab"><img src={heroImage} alt="Estudiantes trabajando en un proyecto de fabricación digital" /><span className="hero-stamp">FAB<br />LAB</span><div className="hero-caption"><span>01</span><span>Aprender haciendo</span></div></div></section>
         <section className="intro-band" id="fablab"><p className="section-kicker">Nuestro espacio</p><div className="intro-content"><h2>Un lugar para<br /><span>hacer posible.</span></h2><p>Somos un laboratorio de fabricación digital abierto a la comunidad educativa. Aquí las ideas se convierten en prototipos, y los prototipos en nuevas oportunidades.</p></div><div className="stats"><div><strong>01</strong><span>Sede Renca</span></div><div><strong>∞</strong><span>Ideas en movimiento</span></div><div><strong>24/7</strong><span>Curiosidad activa</span></div></div></section>
-        <section className="projects-section" id="proyectos"><div className="section-heading"><div><p className="section-kicker">Proyectos destacados</p><h2>Hecho aquí.</h2></div><p>Una selección de procesos, aprendizajes y resultados del ecosistema FabLab.</p></div><div className="project-toolbar"><div className="category-tabs">{categories.map((category) => <button className={activeCategory === category ? 'is-active' : ''} key={category} type="button" onClick={() => setActiveCategory(category)}>{category}</button>)}</div><label className="search-field"><Search size={17} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar proyectos" /></label></div><div className="project-grid">{filteredProjects.map((project, index) => <ProjectCard key={project.id} project={project} index={index} featured={index === 0 && activeCategory === 'Todos'} onSelect={setSelectedProject} />)}</div>{filteredProjects.length === 0 && <div className="empty-state">No encontramos proyectos con esos criterios.</div>}</section>
+        <section className="projects-section" id="proyectos"><div className="section-heading"><div><p className="section-kicker">Proyectos destacados</p><h2>Hecho aquí.</h2></div><p>Una selección de procesos, aprendizajes y resultados del ecosistema FabLab.</p></div><div className="project-grid">{featuredProjects.map((project, index) => <ProjectCard key={project.id} project={project} index={index} featured={index === 0} onSelect={setSelectedProject} />)}</div><a className="button button-dark" href="/proyectos">Ver todos los proyectos <ArrowUpRight size={17} /></a></section>
         <CommunitySection />
       </main>
       <SiteFooter />
