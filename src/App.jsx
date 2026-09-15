@@ -67,18 +67,37 @@ function AdminRoute({ projects, onAdd, onReload }) {
         return
       }
 
-      console.log("Checking admin_users")
+      const userEmail = currentSession.user?.email
+      if (!userEmail) {
+        if (mounted) {
+          await supabase.auth.signOut()
+          setSession(null)
+          setAuthorized(false)
+          setChecking(false)
+        }
+        return
+      }
+
       const { data: adminUser, error } = await supabase
         .from('admin_users')
-        .select('id')
-        .eq('id', currentSession.user.id)
+        .select('email, active')
+        .eq('email', userEmail)
+        .eq('active', true)
         .maybeSingle()
-      console.log("Admin user found:", adminUser)
-      if (error) console.error("admin_users error:", error)
+
+      if (error || !adminUser) {
+        if (mounted) {
+          await supabase.auth.signOut()
+          setSession(null)
+          setAuthorized(false)
+          setChecking(false)
+        }
+        return
+      }
 
       if (mounted) {
         setSession(currentSession)
-        setAuthorized(Boolean(adminUser) && !error)
+        setAuthorized(true)
         setChecking(false)
       }
     }
@@ -88,16 +107,28 @@ function AdminRoute({ projects, onAdd, onReload }) {
   }, [])
 
   async function handleAuthenticated(nextSession) {
-    console.log("Checking admin_users")
-    const { data: adminUser, error } = await supabase.from('admin_users').select('id').eq('id', nextSession.user.id).maybeSingle()
-    console.log("Admin user found:", adminUser)
-    if (error) console.error("admin_users error:", error)
+    const userEmail = nextSession?.user?.email
+    if (!userEmail) {
+      await supabase.auth.signOut()
+      setAuthorized(false)
+      setSession(null)
+      return
+    }
+
+    const { data: adminUser, error } = await supabase
+      .from('admin_users')
+      .select('email, active')
+      .eq('email', userEmail)
+      .eq('active', true)
+      .maybeSingle()
+
     if (error || !adminUser) {
       await supabase.auth.signOut()
       setAuthorized(false)
       setSession(null)
       return
     }
+
     setSession(nextSession)
     setAuthorized(true)
   }
