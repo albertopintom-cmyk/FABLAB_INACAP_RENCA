@@ -103,6 +103,26 @@ export default function ProjectsPage() {
   return (
     <main className="site-shell">
       <section className="projects-section" id="proyectos">
+        <button
+          type="button"
+          onClick={() => {
+            window.location.href = '/'
+          }}
+          style={{
+            justifySelf: 'start',
+            border: '1px solid #d0d5dd',
+            background: '#fff',
+            color: '#101828',
+            borderRadius: '999px',
+            padding: '10px 16px',
+            cursor: 'pointer',
+            fontSize: '0.95rem',
+            marginBottom: '18px',
+          }}
+        >
+          Volver al inicio
+        </button>
+
         <div className="section-heading">
           <div>
             <p className="section-kicker">Proyectos destacados</p>
