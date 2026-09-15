@@ -94,27 +94,27 @@ export default function NewsDetailPage() {
   }
 
   return (
-    <main className="news-page" style={{ padding: '48px 20px 72px', maxWidth: '1200px', margin: '0 auto' }}>
-      <button
-        type="button"
-        onClick={() => {
-          window.history.back()
-        }}
-        style={{
-          marginBottom: '24px',
-          border: '1px solid #d0d5dd',
-          background: '#fff',
-          color: '#101828',
-          borderRadius: '999px',
-          padding: '10px 16px',
-          cursor: 'pointer',
-          fontSize: '0.95rem',
-        }}
-      >
-        Volver a noticias
-      </button>
+    <main className="news-page" style={{ padding: '48px 20px 72px' }}>
+      <article style={{ maxWidth: '860px', margin: '0 auto', display: 'grid', gap: '24px' }}>
+        <button
+          type="button"
+          onClick={() => {
+            window.history.back()
+          }}
+          style={{
+            justifySelf: 'start',
+            border: '1px solid #d0d5dd',
+            background: '#fff',
+            color: '#101828',
+            borderRadius: '999px',
+            padding: '10px 16px',
+            cursor: 'pointer',
+            fontSize: '0.95rem',
+          }}
+        >
+          Volver a noticias
+        </button>
 
-      <article style={{ background: '#fff', border: '1px solid #e4e7ec', borderRadius: '18px', overflow: 'hidden', boxShadow: '0 10px 28px rgba(16, 24, 40, 0.06)' }}>
         <img
           src={
             news.image_url ||
@@ -124,16 +124,16 @@ export default function NewsDetailPage() {
           style={{ display: 'block', width: '100%', height: '420px', objectFit: 'cover', background: '#f2f4f7' }}
         />
 
-        <div style={{ padding: '28px 24px 32px' }}>
-          <time style={{ display: 'inline-block', marginBottom: '16px', color: '#667085', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+        <div style={{ display: 'grid', gap: '18px', maxWidth: '720px', margin: '0 auto', width: '100%' }}>
+          <time style={{ color: '#667085', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
             {formatDate(news.created_at)}
           </time>
 
-          <h1 style={{ margin: '0 0 18px', color: '#101828', fontSize: 'clamp(2rem, 4vw, 3rem)', lineHeight: 1.1 }}>
+          <h1 style={{ margin: 0, color: '#101828', fontSize: 'clamp(2.3rem, 5vw, 4.2rem)', lineHeight: 1.05, letterSpacing: '-0.04em' }}>
             {news.title}
           </h1>
 
-          <div style={{ color: '#475467', lineHeight: 1.8, fontSize: '1rem', whiteSpace: 'pre-wrap' }}>
+          <div style={{ color: '#475467', lineHeight: 1.85, fontSize: '1.05rem', maxWidth: '680px', whiteSpace: 'pre-wrap' }}>
             {news.content}
           </div>
         </div>
