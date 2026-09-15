@@ -83,12 +83,16 @@ export default function NewsPage() {
           {news.map((item) => (
             <article
               key={item.id}
+              onClick={() => {
+                window.location.href = `/noticias/${item.id}`
+              }}
               style={{
                 background: '#fff',
                 border: '1px solid #e4e7ec',
                 borderRadius: '18px',
                 overflow: 'hidden',
                 boxShadow: '0 10px 28px rgba(16, 24, 40, 0.06)',
+                cursor: 'pointer',
               }}
             >
               <img
