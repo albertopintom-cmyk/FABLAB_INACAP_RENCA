@@ -3,6 +3,7 @@ import { ArrowUpRight, AtSign, ChevronDown, Mail, Menu, Plus, Search, X } from '
 import { supabase } from './lib/supabase'
 import NewsDetailPage from './pages/NewsDetailPage'
 import NewsPage from './pages/NewsPage'
+import ProjectDetailPage from './pages/ProjectDetailPage'
 import ProjectsPage from './pages/ProjectsPage'
 import heroImage from './assets/hero.png'
 import './App.css'
@@ -202,6 +203,10 @@ function App() {
 
   if (window.location.pathname === '/noticias') {
     return <NewsPage />
+  }
+
+  if (window.location.pathname.startsWith('/proyectos/')) {
+    return <ProjectDetailPage />
   }
 
   if (window.location.pathname === '/proyectos') {
