@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowUpRight, AtSign, ChevronDown, Mail, Menu, Plus, Search, X } from 'lucide-react'
 import { supabase } from './lib/supabase'
+import NewsDetailPage from './pages/NewsDetailPage'
 import NewsPage from './pages/NewsPage'
 import ProjectsPage from './pages/ProjectsPage'
 import heroImage from './assets/hero.png'
@@ -193,6 +194,10 @@ function App() {
 
   if (window.location.pathname === '/admin') {
     return <AdminRoute projects={projects} onAdd={(project) => setProjects((current) => [project, ...current])} onReload={loadProjects} />
+  }
+
+  if (window.location.pathname.startsWith('/noticias/')) {
+    return <NewsDetailPage />
   }
 
   if (window.location.pathname === '/noticias') {
