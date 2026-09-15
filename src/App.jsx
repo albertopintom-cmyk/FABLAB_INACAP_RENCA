@@ -173,7 +173,6 @@ function App() {
   const [projects, setProjects] = useState(demoProjects)
   const [activeCategory, setActiveCategory] = useState('Todos')
   const [selectedProject, setSelectedProject] = useState(null)
-  const [isAdminOpen, setIsAdminOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [query, setQuery] = useState('')
   const categories = useMemo(() => getCategories(projects), [projects])
@@ -246,7 +245,7 @@ function App() {
 
   return (
     <div className="site-shell">
-      <header className="site-header"><a className="brand" href="#inicio" aria-label="FABLAB INACAP Renca, inicio"><span className="brand-mark">F</span><span><strong>FABLAB</strong><small>INACAP RENCA</small></span></a><button className="menu-toggle" type="button" onClick={() => setMenuOpen(!menuOpen)} aria-label="Abrir menú"><Menu size={20} /></button><nav className={menuOpen ? 'main-nav is-open' : 'main-nav'}><a href="/proyectos" onClick={() => setMenuOpen(false)}>Proyectos</a><a href="#comunidad" onClick={() => setMenuOpen(false)}>Comunidad</a><a href="#fablab" onClick={() => setMenuOpen(false)}>El FabLab</a><a href="/noticias" onClick={() => setMenuOpen(false)}>Noticias</a><a href="#contacto" onClick={() => setMenuOpen(false)}>Contacto</a><button className="admin-link" type="button" onClick={() => setIsAdminOpen(true)}>Panel admin <ArrowUpRight size={15} /></button></nav></header>
+      <header className="site-header"><a className="brand" href="#inicio" aria-label="FABLAB INACAP Renca, inicio"><span className="brand-mark">F</span><span><strong>FABLAB</strong><small>INACAP RENCA</small></span></a><button className="menu-toggle" type="button" onClick={() => setMenuOpen(!menuOpen)} aria-label="Abrir menú"><Menu size={20} /></button><nav className={menuOpen ? 'main-nav is-open' : 'main-nav'}><a href="/proyectos" onClick={() => setMenuOpen(false)}>Proyectos</a><a href="#comunidad" onClick={() => setMenuOpen(false)}>Comunidad</a><a href="#fablab" onClick={() => setMenuOpen(false)}>El FabLab</a><a href="/noticias" onClick={() => setMenuOpen(false)}>Noticias</a><a href="#contacto" onClick={() => setMenuOpen(false)}>Contacto</a><button className="admin-link" type="button" onClick={() => { window.location.href = '/admin' }}>Panel admin <ArrowUpRight size={15} /></button></nav></header>
       <main>
         <section className="hero" id="inicio"><div className="hero-copy"><p className="eyebrow"><span /> Fabricar para transformar</p><h1>Ideas que toman<br /><em>forma.</em></h1><p className="hero-text">Conocemos, prototipamos y compartimos proyectos que nacen en el FabLab INACAP Renca.</p><a className="button button-dark" href="#proyectos">Explorar proyectos <ArrowUpRight size={17} /></a></div><div className="hero-visual" aria-label="Estudiantes trabajando en el FabLab"><img src={heroImage} alt="Estudiantes trabajando en un proyecto de fabricación digital" /><span className="hero-stamp">FAB<br />LAB</span><div className="hero-caption"><span>01</span><span>Aprender haciendo</span></div></div></section>
         <section className="intro-band" id="fablab"><p className="section-kicker">Nuestro espacio</p><div className="intro-content"><h2>Un lugar para<br /><span>hacer posible.</span></h2><p>Somos un laboratorio de fabricación digital abierto a la comunidad educativa. Aquí las ideas se convierten en prototipos, y los prototipos en nuevas oportunidades.</p></div><div className="stats"><div><strong>01</strong><span>Sede Renca</span></div><div><strong>∞</strong><span>Ideas en movimiento</span></div><div><strong>24/7</strong><span>Curiosidad activa</span></div></div></section>
@@ -255,7 +254,6 @@ function App() {
       </main>
       <SiteFooter />
       {selectedProject && <div className="modal-backdrop" role="presentation" onClick={() => setSelectedProject(null)}><article className="project-modal" role="dialog" aria-modal="true" aria-label={selectedProject.title} onClick={(event) => event.stopPropagation()}><button className="close-button" type="button" onClick={() => setSelectedProject(null)} aria-label="Cerrar"><X size={20} /></button><img src={selectedProject.image_url || heroImage} alt="" /><div className="modal-copy"><div className="project-meta"><span>{selectedProject.category}</span><span>{selectedProject.year}</span></div><h2>{selectedProject.title}</h2><p>{selectedProject.excerpt}</p><a href="mailto:fablab.renca@inacap.cl?subject=Consulta sobre proyecto">Conocer más <ArrowUpRight size={17} /></a></div></article></div>}
-      {isAdminOpen && <AdminPanel projects={projects} categories={categories} onClose={() => setIsAdminOpen(false)} onAdd={(project) => setProjects((current) => [project, ...current])} />}
     </div>
   )
 }
