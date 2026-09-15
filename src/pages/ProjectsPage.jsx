@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { ArrowUpRight, Search, X } from 'lucide-react'
+import { ArrowUpRight, Search } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import heroImage from '../assets/hero.png'
 
@@ -46,11 +46,8 @@ function getCategories(projects) {
   return ['Todos', ...new Set(projects.map((project) => project.category).filter(Boolean))]
 }
 
-function ProjectCard({ project, index, featured, onSelect }) {
+function ProjectCard({ project, index, featured }) {
   return <article className={featured ? 'project-card project-card-featured' : 'project-card'} onClick={() => {
-    if (onSelect) {
-      onSelect(project)
-    }
     window.location.href = `/proyectos/${project.id}`
   }}><div className="project-image"><img src={project.image_url || heroImage} alt="" /><span>{String(index + 1).padStart(2, '0')}</span></div><div className="project-meta"><span>{project.category}</span><span>{project.year}</span></div><h3>{project.title}</h3><p>{project.excerpt}</p><button type="button" className="read-more" aria-label={`Ver ${project.title}`}><ArrowUpRight size={18} /></button></article>
 }
@@ -59,7 +56,6 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState(demoProjects)
   const [activeCategory, setActiveCategory] = useState('Todos')
   const [query, setQuery] = useState('')
-  const [selectedProject, setSelectedProject] = useState(null)
 
   const categories = useMemo(() => getCategories(projects), [projects])
 
@@ -137,7 +133,7 @@ export default function ProjectsPage() {
 
         <div className="project-grid">
           {filteredProjects.map((project, index) => (
-            <ProjectCard key={project.id} project={project} index={index} featured={index === 0 && activeCategory === 'Todos'} onSelect={setSelectedProject} />
+            <ProjectCard key={project.id} project={project} index={index} featured={index === 0 && activeCategory === 'Todos'} />
           ))}
         </div>
 
@@ -145,24 +141,6 @@ export default function ProjectsPage() {
           <div className="empty-state">No encontramos proyectos con esos criterios.</div>
         )}
       </section>
-
-      {selectedProject && (
-        <div className="modal-backdrop" role="presentation" onClick={() => setSelectedProject(null)}>
-          <article className="project-modal" role="dialog" aria-modal="true" aria-label={selectedProject.title} onClick={(event) => event.stopPropagation()}>
-            <button className="close-button" type="button" onClick={() => setSelectedProject(null)} aria-label="Cerrar"><X size={20} /></button>
-            <img src={selectedProject.image_url || heroImage} alt="" />
-            <div className="modal-copy">
-              <div className="project-meta">
-                <span>{selectedProject.category}</span>
-                <span>{selectedProject.year}</span>
-              </div>
-              <h2>{selectedProject.title}</h2>
-              <p>{selectedProject.excerpt}</p>
-              <a href="mailto:fablab.renca@inacap.cl?subject=Consulta sobre proyecto">Conocer más <ArrowUpRight size={17} /></a>
-            </div>
-          </article>
-        </div>
-      )}
     </main>
   )
 }
