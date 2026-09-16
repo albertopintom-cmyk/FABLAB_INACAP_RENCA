@@ -31,13 +31,22 @@ function LoginPage({ onAuthenticated }) {
       return
     }
 
-    const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
-    console.log("Login result:", data)
-    console.log("Login error:", signInError)
-    if (signInError) {
-      setError(signInError.message)
+    try {
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+      console.log("Login result:", data)
+      console.log("Login error:", signInError)
+      if (signInError) {
+        console.error('ADMIN LOGIN ERROR:', signInError)
+        setError(signInError.message || 'Invalid login credentials')
+        setLoading(false)
+        return
+      }
+
+      onAuthenticated(data.session)
+    } catch (error) {
+      console.error('ADMIN LOGIN ERROR:', error)
+      setError(error?.message || 'Invalid login credentials')
       setLoading(false)
-      return
     }
 
     onAuthenticated(data.session)
