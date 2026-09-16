@@ -1,6 +1,29 @@
 import { useEffect, useMemo, useState } from 'react'
 import { getNewsById } from '../services/newsService'
 
+function BackToNewsButton() {
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        window.location.href = '/noticias'
+      }}
+      style={{
+        justifySelf: 'start',
+        border: '1px solid #d0d5dd',
+        background: '#fff',
+        color: '#101828',
+        borderRadius: '999px',
+        padding: '10px 16px',
+        cursor: 'pointer',
+        fontSize: '0.95rem',
+      }}
+    >
+      ← Volver a Noticias
+    </button>
+  )
+}
+
 function formatDate(value) {
   if (!value) return 'Sin fecha'
 
@@ -96,24 +119,7 @@ export default function NewsDetailPage() {
   return (
     <main className="news-page" style={{ padding: '48px 20px 72px' }}>
       <article style={{ maxWidth: '860px', margin: '0 auto', display: 'grid', gap: '24px' }}>
-        <button
-          type="button"
-          onClick={() => {
-            window.history.back()
-          }}
-          style={{
-            justifySelf: 'start',
-            border: '1px solid #d0d5dd',
-            background: '#fff',
-            color: '#101828',
-            borderRadius: '999px',
-            padding: '10px 16px',
-            cursor: 'pointer',
-            fontSize: '0.95rem',
-          }}
-        >
-          Volver a noticias
-        </button>
+        <BackToNewsButton />
 
         <img
           src={
