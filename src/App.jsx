@@ -138,6 +138,7 @@ function AdminRoute({ projects, onAdd, onReload }) {
       return
     }
 
+    console.log('FABLAB ACCESS USER:', session?.user)
     setSession(nextSession)
     setAuthorized(true)
   }
