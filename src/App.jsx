@@ -5,6 +5,7 @@ import NewsDetailPage from './pages/NewsDetailPage'
 import NewsPage from './pages/NewsPage'
 import ProjectDetailPage from './pages/ProjectDetailPage'
 import ProjectsPage from './pages/ProjectsPage'
+import ScrollToTopButton from './components/ScrollToTopButton'
 import heroImage from './assets/hero-fab-inacap-renca.png'
 import './App.css'
 
@@ -267,6 +268,7 @@ function App() {
       </main>
       <SiteFooter />
       {selectedProject && <div className="modal-backdrop" role="presentation" onClick={() => setSelectedProject(null)}><article className="project-modal" role="dialog" aria-modal="true" aria-label={selectedProject.title} onClick={(event) => event.stopPropagation()}><button className="close-button" type="button" onClick={() => setSelectedProject(null)} aria-label="Cerrar"><X size={20} /></button><img src={selectedProject.image_url || heroImage} alt="" /><div className="modal-copy"><div className="project-meta"><span>{selectedProject.category}</span><span>{selectedProject.year}</span></div><h2>{selectedProject.title}</h2><p>{selectedProject.excerpt}</p><a href="mailto:fablab.renca@inacap.cl?subject=Consulta sobre proyecto">Conocer más <ArrowUpRight size={17} /></a></div></article></div>}
+      <ScrollToTopButton />
     </div>
   )
 }
