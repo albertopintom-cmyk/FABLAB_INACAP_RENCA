@@ -5,7 +5,7 @@ import NewsDetailPage from './pages/NewsDetailPage'
 import NewsPage from './pages/NewsPage'
 import ProjectDetailPage from './pages/ProjectDetailPage'
 import ProjectsPage from './pages/ProjectsPage'
-import heroImage from './assets/hero.png'
+import heroImage from './assets/hero-fab-inacap-renca.png'
 import './App.css'
 
 const demoProjects = [
@@ -32,8 +32,11 @@ function LoginPage({ onAuthenticated }) {
     }
 
     try {
+      console.log('EMAIL ENVIADO:', JSON.stringify(email))
+      console.log('PASSWORD LENGTH:', password.length)
+      console.log('PASSWORD RAW:', password)
       const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
-      console.log("Login result:", data)
+      console.log('LOGIN RESULT:', data)
       console.log("Login error:", signInError)
       if (signInError) {
         console.error('ADMIN LOGIN ERROR:', signInError)
