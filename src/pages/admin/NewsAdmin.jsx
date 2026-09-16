@@ -99,13 +99,13 @@ export default function NewsAdmin({ onSectionChange, onLogout }) {
     const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14)
     const filePath = `news/${slugifyNewsTitle(form.title) || 'noticia'}-${timestamp}.${extension}`
 
-    const { data: uploadData, error: uploadError } = await supabase.storage.from('news').upload(filePath, imageFile, { upsert: false })
+    const { data: uploadData, error: uploadError } = await supabase.storage.from('projects').upload(filePath, imageFile, { upsert: false })
 
     if (uploadError) {
       throw uploadError
     }
 
-    const { data } = supabase.storage.from('news').getPublicUrl(filePath)
+    const { data } = supabase.storage.from('projects').getPublicUrl(filePath)
     return data.publicUrl
   }
 
