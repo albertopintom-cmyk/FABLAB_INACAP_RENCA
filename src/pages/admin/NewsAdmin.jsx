@@ -82,7 +82,7 @@ export default function NewsAdmin({ onSectionChange, onLogout }) {
     setEditingId(item.id)
     setForm({
       title: item.title ?? '',
-      summary: item.summary ?? item.excerpt ?? '',
+      summary: item.summary ?? '',
       content: item.content ?? '',
       published: item.published !== false,
     })
@@ -120,13 +120,10 @@ export default function NewsAdmin({ onSectionChange, onLogout }) {
       const imageUrl = await uploadImage()
       const payload = {
         title: form.title.trim(),
-        slug: slugifyNewsTitle(form.title) || `noticia-${Date.now()}`,
-        excerpt: form.summary.trim(),
         summary: form.summary.trim(),
         content: form.content.trim(),
         published: form.published,
-        published_at: form.published ? new Date().toISOString() : null,
-        ...(imageUrl ? { image_url: imageUrl, image: imageUrl } : {}),
+        ...(imageUrl ? { image_url: imageUrl } : {}),
       }
 
       if (editingId) {

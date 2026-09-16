@@ -1,10 +1,22 @@
 import { supabase } from '../lib/supabase'
 
+function sanitizeNewsPayload(payload = {}) {
+  const nextPayload = {
+    ...(payload.title !== undefined ? { title: payload.title } : {}),
+    ...(payload.summary !== undefined ? { summary: payload.summary } : {}),
+    ...(payload.content !== undefined ? { content: payload.content } : {}),
+    ...(payload.image_url !== undefined ? { image_url: payload.image_url } : {}),
+    ...(payload.published !== undefined ? { published: payload.published } : {}),
+  }
+
+  return nextPayload
+}
+
 function normalizeNewsRecord(item = {}) {
   return {
     ...item,
-    summary: item.summary ?? item.excerpt ?? '',
-    image_url: item.image_url ?? item.image ?? null,
+    summary: item.summary ?? '',
+    image_url: item.image_url ?? null,
   }
 }
 
@@ -15,7 +27,7 @@ export async function getAllNews() {
 
   const { data, error } = await supabase
     .from('news')
-    .select('*')
+    .select('id, title, summary, content, image_url, published, created_at')
     .order('created_at', { ascending: false })
 
   if (error) {
@@ -37,7 +49,7 @@ export async function getPublishedNews() {
 
   const { data, error } = await supabase
     .from('news')
-    .select('*')
+    .select('id, title, summary, content, image_url, published, created_at')
     .eq('published', true)
     .order('created_at', { ascending: false })
 
@@ -60,7 +72,7 @@ export async function getNewsById(id) {
 
   const { data, error } = await supabase
     .from('news')
-    .select('*')
+    .select('id, title, summary, content, image_url, published, created_at')
     .eq('id', id)
     .eq('published', true)
     .single()
@@ -82,10 +94,12 @@ export async function createNews(data) {
     throw new Error('Supabase no está configurado.')
   }
 
+  const payload = sanitizeNewsPayload(data)
+
   const { data: createdNews, error } = await supabase
     .from('news')
-    .insert(data)
-    .select()
+    .insert(payload)
+    .select('id, title, summary, content, image_url, published, created_at')
     .single()
 
   if (error) {
@@ -106,11 +120,13 @@ export async function updateNews(id, data) {
     throw new Error('Supabase no está configurado.')
   }
 
+  const payload = sanitizeNewsPayload(data)
+
   const { data: updatedNews, error } = await supabase
     .from('news')
-    .update(data)
+    .update(payload)
     .eq('id', id)
-    .select()
+    .select('id, title, summary, content, image_url, published, created_at')
     .single()
 
   if (error) {
