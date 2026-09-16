@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowUpRight, AtSign, ChevronDown, Mail, Menu, Plus, Search, X } from 'lucide-react'
 import { supabase } from './lib/supabase'
+import NewsAdmin from './pages/admin/NewsAdmin'
 import NewsDetailPage from './pages/NewsDetailPage'
 import NewsPage from './pages/NewsPage'
 import ProjectDetailPage from './pages/ProjectDetailPage'
@@ -63,6 +64,7 @@ function AdminRoute({ projects, onAdd, onReload }) {
   const [session, setSession] = useState(null)
   const [checking, setChecking] = useState(true)
   const [authorized, setAuthorized] = useState(false)
+  const [activeSection, setActiveSection] = useState('projects')
 
   useEffect(() => {
     let mounted = true
@@ -151,11 +153,17 @@ function AdminRoute({ projects, onAdd, onReload }) {
     await supabase?.auth.signOut()
     setSession(null)
     setAuthorized(false)
+    setActiveSection('projects')
   }
 
   if (checking) return <main className="auth-page"><p className="auth-status">Verificando sesión...</p></main>
   if (!session || !authorized) return <LoginPage onAuthenticated={handleAuthenticated} />
-  return <AdminPanel projects={projects} categories={getCategories(projects)} onClose={logout} onAdd={onAdd} onReload={onReload} onLogout={logout} dashboard />
+
+  if (activeSection === 'news') {
+    return <NewsAdmin onSectionChange={setActiveSection} onLogout={logout} />
+  }
+
+  return <AdminPanel projects={projects} categories={getCategories(projects)} onClose={logout} onAdd={onAdd} onReload={onReload} onLogout={logout} dashboard onSectionChange={setActiveSection} />
 }
 
 function getCategories(projects) {
@@ -273,7 +281,7 @@ function App() {
   )
 }
 
-function AdminPanel({ projects, categories, onClose, onAdd, onReload, onLogout, dashboard = false }) {
+function AdminPanel({ projects, categories, onClose, onAdd, onReload, onLogout, dashboard = false, onSectionChange }) {
   const emptyForm = { title: '', summary: '', description: '', category: categories[1] ?? '', year: new Date().getFullYear(), featured: false, published: true }
   const [form, setForm] = useState(emptyForm)
   const [editingProject, setEditingProject] = useState(null)
@@ -419,7 +427,7 @@ function AdminPanel({ projects, categories, onClose, onAdd, onReload, onLogout, 
 
   const projectList = <div className="admin-list"><strong>{projects.length} proyectos visibles</strong>{orderedProjects.map((project) => <div key={project.id}><span>{project.title}</span><small>{project.category} · {project.year} <button type="button" className="admin-edit" onClick={() => startEditing(project)}>Editar</button>{dashboard && <button type="button" className="admin-edit" onClick={() => deleteProject(project)}>Eliminar</button>}</small></div>)}</div>
 
-  if (dashboard) return <main className="admin-page"><header className="admin-page-header"><a className="brand" href="/" aria-label="FABLAB INACAP Renca, inicio"><span className="brand-mark">F</span><span><strong>FABLAB</strong><small>INACAP RENCA</small></span></a><button className="button button-dark" type="button" onClick={onLogout}>Cerrar sesión</button></header><section className="admin-dashboard"><div className="admin-header"><div><p className="section-kicker">Gestión editorial</p><h1>Panel admin</h1></div></div><p className="admin-note">Sesión autenticada. Este panel es el punto de partida para la gestión de proyectos.</p><div className="admin-panel">{formFields}{message && <p className="success-message">{message}</p>}{projectList}</div></section></main>
+  if (dashboard) return <main className="admin-page"><header className="admin-page-header"><a className="brand" href="/" aria-label="FABLAB INACAP Renca, inicio"><span className="brand-mark">F</span><span><strong>FABLAB</strong><small>INACAP RENCA</small></span></a><nav className="admin-nav" aria-label="Secciones del panel admin"><button type="button" className="admin-nav-button is-active" onClick={() => onSectionChange?.('projects')}>Proyectos</button><button type="button" className="admin-nav-button" onClick={() => onSectionChange?.('news')}>Noticias</button></nav><button className="button button-dark" type="button" onClick={onLogout}>Cerrar sesión</button></header><section className="admin-dashboard"><div className="admin-header"><div><p className="section-kicker">Gestión editorial</p><h1>Panel admin</h1></div></div><p className="admin-note">Sesión autenticada. Este panel es el punto de partida para la gestión de proyectos.</p><div className="admin-panel">{formFields}{message && <p className="success-message">{message}</p>}{projectList}</div></section></main>
   return <div className="modal-backdrop" role="presentation" onClick={onClose}><aside className="admin-panel" role="dialog" aria-modal="true" aria-label="Panel administrador" onClick={(event) => event.stopPropagation()}><div className="admin-header"><div><p className="section-kicker">Gestión editorial</p><h2>Panel admin</h2></div><button className="close-button" type="button" onClick={onClose} aria-label="Cerrar"><X size={20} /></button></div><p className="admin-note">Vista MVP para revisar y agregar proyectos.</p>{formFields}{message && <p className="success-message">{message}</p>}{projectList}</aside></div>
 }
 

@@ -1,5 +1,31 @@
 import { supabase } from '../lib/supabase'
 
+function normalizeNewsRecord(item = {}) {
+  return {
+    ...item,
+    summary: item.summary ?? item.excerpt ?? '',
+    image_url: item.image_url ?? item.image ?? null,
+  }
+}
+
+export async function getAllNews() {
+  if (!supabase) {
+    throw new Error('Supabase no está configurado.')
+  }
+
+  const { data, error } = await supabase
+    .from('news')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error al obtener noticias:', error)
+    throw error
+  }
+
+  return (data ?? []).map(normalizeNewsRecord)
+}
+
 /**
  * Obtiene todas las noticias publicadas ordenadas por fecha de creación descendente.
  * Solo retorna registros donde published = true.
@@ -20,7 +46,7 @@ export async function getPublishedNews() {
     throw error
   }
 
-  return data
+  return (data ?? []).map(normalizeNewsRecord)
 }
 
 /**
@@ -44,7 +70,7 @@ export async function getNewsById(id) {
     throw error
   }
 
-  return data
+  return normalizeNewsRecord(data)
 }
 
 /**
@@ -67,7 +93,7 @@ export async function createNews(data) {
     throw error
   }
 
-  return createdNews
+  return normalizeNewsRecord(createdNews)
 }
 
 /**
@@ -92,7 +118,7 @@ export async function updateNews(id, data) {
     throw error
   }
 
-  return updatedNews
+  return normalizeNewsRecord(updatedNews)
 }
 
 /**
@@ -119,6 +145,7 @@ export async function deleteNews(id) {
 }
 
 export default {
+  getAllNews,
   getPublishedNews,
   getNewsById,
   createNews,
