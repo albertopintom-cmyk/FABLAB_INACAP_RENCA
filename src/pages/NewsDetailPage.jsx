@@ -140,7 +140,7 @@ export default function NewsDetailPage() {
             {news.title}
           </h1>
 
-          <div style={{ color: '#475467', lineHeight: 1.85, fontSize: '1.05rem', maxWidth: '680px', whiteSpace: 'pre-wrap' }}>
+          <div className="detail-copy" style={{ color: '#475467', fontSize: '1.05rem', maxWidth: '680px', whiteSpace: 'pre-wrap' }}>
             {news.content}
           </div>
         </div>

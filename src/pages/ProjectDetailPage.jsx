@@ -142,11 +142,11 @@ export default function ProjectDetailPage() {
             {project.title}
           </h1>
 
-          <p style={{ margin: 0, color: '#475467', lineHeight: 1.7, fontSize: '1.05rem', fontWeight: 500 }}>
-            {project.summary}
-          </p>
+          <div className="detail-copy" style={{ color: '#475467', fontSize: '1.05rem', fontWeight: 500 }}>
+            <p style={{ margin: 0, lineHeight: 1.7 }}>{project.summary}</p>
+          </div>
 
-          <div style={{ color: '#475467', lineHeight: 1.85, fontSize: '1.05rem', whiteSpace: 'pre-wrap' }}>
+          <div className="detail-copy" style={{ color: '#475467', fontSize: '1.05rem', whiteSpace: 'pre-wrap' }}>
             {project.description}
           </div>
 
