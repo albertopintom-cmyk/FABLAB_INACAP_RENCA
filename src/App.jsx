@@ -173,6 +173,8 @@ function getCategories(projects) {
     'Minería',
     'Mecánica',
     'Agroindustria',
+    'Educación',
+    'Diseño',
   ]
 
   return [
