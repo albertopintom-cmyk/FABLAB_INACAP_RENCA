@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Analytics } from '@vercel/analytics/react'
 import { ArrowUpRight, AtSign, ChevronDown, Mail, Menu, Plus, Search, X } from 'lucide-react'
 import { supabase } from './lib/supabase'
 import NewsAdmin from './pages/admin/NewsAdmin'
@@ -293,6 +294,7 @@ function App() {
       <SiteFooter />
       {selectedProject && <div className="modal-backdrop" role="presentation" onClick={() => setSelectedProject(null)}><article className="project-modal" role="dialog" aria-modal="true" aria-label={selectedProject.title} onClick={(event) => event.stopPropagation()}><button className="close-button" type="button" onClick={() => setSelectedProject(null)} aria-label="Cerrar"><X size={20} /></button><img src={selectedProject.image_url || heroImage} alt="" /><div className="modal-copy"><div className="project-meta"><span>{selectedProject.category}</span><span>{selectedProject.year}</span></div><h2>{selectedProject.title}</h2><p>{selectedProject.excerpt}</p><a href="mailto:fablab.renca@inacap.cl?subject=Consulta sobre proyecto">Conocer más <ArrowUpRight size={17} /></a></div></article></div>}
       <ScrollToTopButton />
+      <Analytics />
     </div>
   )
 }
