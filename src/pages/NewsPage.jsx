@@ -60,6 +60,28 @@ export default function NewsPage() {
         </h1>
       </header>
 
+      <button
+        type="button"
+        onClick={() => {
+          window.location.href = '/'
+        }}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          marginBottom: '16px',
+          border: '1px solid #d0d5dd',
+          background: '#fff',
+          color: '#101828',
+          borderRadius: '999px',
+          padding: '10px 16px',
+          cursor: 'pointer',
+          fontSize: '0.95rem',
+        }}
+      >
+        ← Volver al Inicio
+      </button>
+
       {loading && (
         <div style={{ padding: '32px 0', textAlign: 'center', color: '#475467', fontSize: '1rem' }}>
           Cargando noticias...

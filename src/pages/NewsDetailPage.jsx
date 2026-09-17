@@ -10,6 +10,7 @@ function BackToNewsButton() {
       }}
       style={{
         justifySelf: 'start',
+        marginBottom: '16px',
         border: '1px solid #d0d5dd',
         background: '#fff',
         color: '#101828',
@@ -118,9 +119,9 @@ export default function NewsDetailPage() {
 
   return (
     <main className="news-page" style={{ padding: '48px 20px 72px' }}>
-      <article style={{ maxWidth: '860px', margin: '0 auto', display: 'grid', gap: '24px' }}>
-        <BackToNewsButton />
+      <BackToNewsButton />
 
+      <article style={{ maxWidth: '860px', margin: '0 auto', display: 'grid', gap: '24px' }}>
         <img
           src={
             news.image_url ||
