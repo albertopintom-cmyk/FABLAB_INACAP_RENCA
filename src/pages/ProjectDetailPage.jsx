@@ -138,11 +138,11 @@ export default function ProjectDetailPage() {
             <span>{project.year}</span>
           </div>
 
-          <h1 style={{ margin: 0, color: '#101828', fontSize: 'clamp(2.2rem, 5vw, 4rem)', lineHeight: 1.05, letterSpacing: '-0.04em' }}>
+          <h1 className="detail-title" style={{ margin: 0, color: '#101828', fontSize: 'clamp(2.2rem, 5vw, 4rem)', lineHeight: 1.05, letterSpacing: '-0.04em' }}>
             {project.title}
           </h1>
 
-          <div className="detail-copy" style={{ color: '#475467', fontSize: '1.05rem', fontWeight: 500 }}>
+          <div className="detail-summary" style={{ color: '#475467', fontSize: '1.05rem', fontWeight: 500 }}>
             <p style={{ margin: 0, lineHeight: 1.7 }}>{project.summary}</p>
           </div>
 

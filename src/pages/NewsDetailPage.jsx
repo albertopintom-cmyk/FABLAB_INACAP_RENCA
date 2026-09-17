@@ -136,7 +136,7 @@ export default function NewsDetailPage() {
             {formatDate(news.created_at)}
           </time>
 
-          <h1 style={{ margin: 0, color: '#101828', fontSize: 'clamp(2.3rem, 5vw, 4.2rem)', lineHeight: 1.05, letterSpacing: '-0.04em' }}>
+          <h1 className="detail-title" style={{ margin: 0, color: '#101828', fontSize: 'clamp(2.3rem, 5vw, 4.2rem)', lineHeight: 1.05, letterSpacing: '-0.04em' }}>
             {news.title}
           </h1>
 
