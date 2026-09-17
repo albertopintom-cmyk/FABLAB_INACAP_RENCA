@@ -167,7 +167,21 @@ function AdminRoute({ projects, onAdd, onReload }) {
 }
 
 function getCategories(projects) {
-  return ['Todos', ...new Set(projects.map((project) => project.category).filter(Boolean))]
+  const baseCategories = [
+    'Automatización',
+    'Logística',
+    'Minería',
+    'Mecánica',
+    'Agroindustria',
+  ]
+
+  return [
+    'Todos',
+    ...new Set([
+      ...baseCategories,
+      ...projects.map((project) => project.category).filter(Boolean),
+    ]),
+  ]
 }
 
 function slugifyProjectTitle(title) {
