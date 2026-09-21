@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { renderTextWithLinks } from '../lib/formatTextWithLinks'
 import { getPublishedNews } from '../services/newsService'
 
 function formatDate(value) {
@@ -149,7 +150,7 @@ export default function NewsPage() {
                 </h2>
 
                 <p style={{ margin: 0, color: '#475467', lineHeight: 1.7, fontSize: '0.98rem' }}>
-                  {item.summary}
+                  {renderTextWithLinks(item.summary || '')}
                 </p>
               </div>
             </article>

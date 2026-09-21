@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { renderTextWithLinks } from '../lib/formatTextWithLinks'
 import { getNewsById } from '../services/newsService'
 
 function BackToNewsButton() {
@@ -141,7 +142,7 @@ export default function NewsDetailPage() {
           </h1>
 
           <div className="detail-copy" style={{ color: '#475467', fontSize: '1.05rem', maxWidth: '680px', whiteSpace: 'pre-wrap' }}>
-            {news.content}
+            {renderTextWithLinks(news.content || '')}
           </div>
         </div>
       </article>
