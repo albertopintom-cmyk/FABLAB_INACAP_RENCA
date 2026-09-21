@@ -113,15 +113,23 @@ export default function NewsPage() {
                 background: '#fff',
                 border: '1px solid #e4e7ec',
                 borderRadius: '18px',
-                overflow: 'hidden',
+                overflow: 'visible',
                 boxShadow: '0 10px 28px rgba(16, 24, 40, 0.06)',
                 cursor: 'pointer',
               }}
             >
-              <div className="news-card-image">
+              <div style={{ width: '100%', height: 'auto', overflow: 'visible', background: '#f5f5f5' }}>
                 <img
                   src={item.image_url || 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80'}
                   alt={item.title}
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    height: 'auto',
+                    objectFit: 'contain',
+                    objectPosition: 'center',
+                    background: '#f5f5f5',
+                  }}
                 />
               </div>
 

@@ -123,14 +123,16 @@ export default function NewsDetailPage() {
       <BackToNewsButton />
 
       <article style={{ maxWidth: '860px', margin: '0 auto', display: 'grid', gap: '24px' }}>
-        <img
-          src={
-            news.image_url ||
-            'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80'
-          }
-          alt={news.title}
-          style={{ display: 'block', width: '100%', height: '420px', objectFit: 'contain', objectPosition: 'center', background: '#f5f5f5' }}
-        />
+        <div style={{ width: '100%', height: 'auto', overflow: 'visible', background: '#f5f5f5' }}>
+          <img
+            src={
+              news.image_url ||
+              'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80'
+            }
+            alt={news.title}
+            style={{ display: 'block', width: '100%', height: 'auto', objectFit: 'contain', objectPosition: 'center', background: '#f5f5f5' }}
+          />
+        </div>
 
         <div style={{ display: 'grid', gap: '18px', maxWidth: '720px', margin: '0 auto', width: '100%' }}>
           <time style={{ color: '#667085', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
