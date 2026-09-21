@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { createNews, deleteNews, getAllNews, updateNews } from '../../services/newsService'
 import { supabase } from '../../lib/supabase'
+import { normalizeNewsImage } from '../../utils/normalizeNewsImage'
+import { createNews, deleteNews, getAllNews, updateNews } from '../../services/newsService'
 
 function slugifyNewsTitle(title) {
   return title
@@ -95,11 +96,12 @@ export default function NewsAdmin({ onSectionChange, onLogout }) {
       return editingId ? news.find((item) => item.id === editingId)?.image_url ?? null : null
     }
 
-    const extension = imageFile.name.split('.').pop()?.toLowerCase() || 'jpg'
+    const processedFile = await normalizeNewsImage(imageFile)
+    const extension = 'jpg'
     const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14)
     const filePath = `news/${slugifyNewsTitle(form.title) || 'noticia'}-${timestamp}.${extension}`
 
-    const { data: uploadData, error: uploadError } = await supabase.storage.from('projects').upload(filePath, imageFile, { upsert: false })
+    const { error: uploadError } = await supabase.storage.from('projects').upload(filePath, processedFile, { upsert: false })
 
     if (uploadError) {
       throw uploadError

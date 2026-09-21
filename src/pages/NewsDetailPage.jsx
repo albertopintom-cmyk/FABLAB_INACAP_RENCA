@@ -129,7 +129,7 @@ export default function NewsDetailPage() {
             'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80'
           }
           alt={news.title}
-          style={{ display: 'block', width: '100%', height: '420px', objectFit: 'cover', background: '#f2f4f7' }}
+          style={{ display: 'block', width: '100%', height: '420px', objectFit: 'contain', objectPosition: 'center', background: '#f5f5f5' }}
         />
 
         <div style={{ display: 'grid', gap: '18px', maxWidth: '720px', margin: '0 auto', width: '100%' }}>

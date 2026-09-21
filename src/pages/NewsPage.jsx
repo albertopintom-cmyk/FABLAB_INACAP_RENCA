@@ -118,17 +118,12 @@ export default function NewsPage() {
                 cursor: 'pointer',
               }}
             >
-              <img
-                src={item.image_url || 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80'}
-                alt={item.title}
-                style={{
-                  display: 'block',
-                  width: '100%',
-                  height: '220px',
-                  objectFit: 'cover',
-                  background: '#f2f4f7',
-                }}
-              />
+              <div className="news-card-image">
+                <img
+                  src={item.image_url || 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80'}
+                  alt={item.title}
+                />
+              </div>
 
               <div style={{ padding: '20px' }}>
                 <time
