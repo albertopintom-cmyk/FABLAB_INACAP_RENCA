@@ -102,10 +102,11 @@ export default function NewsPage() {
       )}
 
       {!loading && !error && news.length > 0 && (
-        <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '24px' }}>
+        <section className="news-grid">
           {news.map((item) => (
             <article
               key={item.id}
+              className="news-card"
               onClick={() => {
                 window.location.href = `/noticias/${item.id}`
               }}
