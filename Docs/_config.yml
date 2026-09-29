@@ -5,3 +5,10 @@ layout: default
 aux_links:
 #Repositorio:
 #- https://github.com/tuusuario/open-sam
+
+theme: minima
+
+header_pages:
+- ARQUITECTURA.md
+- BITACORA_TECNICA.md
+- CONTEXT.md
