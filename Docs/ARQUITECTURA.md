@@ -1,3 +1,10 @@
+---
+layout: default
+title: Arquitectura
+nav_order: 2
+---
+
+
 # Arquitectura
 
 ## Project

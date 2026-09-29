@@ -1,3 +1,9 @@
+---
+layout: default
+title: Bitácora
+nav_order: 2
+---
+
 # Bitácora técnica
 
 Las entradas más recientes se agregan al inicio. El documento histórico existente se conserva sin modificaciones.

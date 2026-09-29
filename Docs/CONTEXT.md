@@ -1,3 +1,9 @@
+---
+layout: default
+title: Contexto
+nav_order: 2
+---
+
 # AUTO-GENERATED FILE - DO NOT EDIT MANUALLY
 
 ## Proyecto
