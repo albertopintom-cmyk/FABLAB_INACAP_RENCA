@@ -6,3 +6,7 @@ layout: default
 aux_links:
 #Repositorio:
 #- https://github.com/tuusuario/open-sam
+
+remote_theme: just-the-docs/just-the-docs
+plugins:
+- jekyll-remote-theme
