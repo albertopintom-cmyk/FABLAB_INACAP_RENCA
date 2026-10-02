@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowUpRight, Search } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import heroImage from '../assets/hero.png'
 
 const demoProjects = [
   {
@@ -41,6 +40,7 @@ const demoProjects = [
     featured: false,
   },
 ]
+const heroImage = demoProjects[3].image_url
 
 function getCategories(projects) {
   return ['Todos', ...new Set(projects.map((project) => project.category).filter(Boolean))]
@@ -128,7 +128,7 @@ export default function ProjectsPage() {
             <p className="section-kicker">Proyectos destacados</p>
             <h2>Hecho aquí.</h2>
           </div>
-          <p>Una selección de procesos, aprendizajes y resultados del ecosistema FabLab.</p>
+          <p>Una selección de procesos, aprendizajes y resultados del ecosistema CREA INACAP.</p>
         </div>
 
         <div className="project-toolbar">

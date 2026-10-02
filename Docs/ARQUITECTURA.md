@@ -9,7 +9,7 @@ nav_order: 2
 
 ## Project
 
-FABLAB INACAP RENCA
+CREA INACAP
 
 ## Stack aprobado
 
@@ -28,7 +28,7 @@ FABLAB INACAP RENCA
 
 ## Alcance e independencia
 
-El portal FABLAB INACAP RENCA administra y publica información de proyectos institucionales. Mantiene una base de datos propia y no depende operativamente de **FABLAB Access** ni de **Open SAM**.
+El portal CREA INACAP administra y publica información de proyectos institucionales. Mantiene una base de datos propia y no depende operativamente de **FABLAB Access** ni de **Open SAM**.
 
 - **FABLAB Access** no es una dependencia del portal.
 - **Open SAM** mantiene la gestión detallada de proyectos; el portal solo difunde información seleccionada.
@@ -40,7 +40,7 @@ FABLAB Access is an independent system.
 
 Open SAM is an independent system.
 
-FABLAB INACAP RENCA is focused on public dissemination.
+CREA INACAP is focused on public dissemination.
 
 ## Diagrama de alto nivel
 

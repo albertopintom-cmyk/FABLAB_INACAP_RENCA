@@ -1,8 +1,14 @@
+---
+layout: default
+title: Contexto
+nav_order: 2
+---
+
 # AUTO-GENERATED FILE - DO NOT EDIT MANUALLY
 
 ## Proyecto
 
-**FABLAB INACAP Renca** es un portal institucional para difundir proyectos desarrollados en el FabLab de la sede Renca.
+**CREA INACAP** es un portal institucional para difundir proyectos de fabricación digital e innovación desarrollados junto a la comunidad de Renca.
 
 ## Propósito
 

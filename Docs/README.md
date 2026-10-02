@@ -1,6 +1,6 @@
 # Documentación oficial
 
-Esta carpeta contiene la documentación técnica y contextual del proyecto **FABLAB INACAP Renca**. Su objetivo es facilitar la continuidad institucional y permitir que futuros coordinadores, docentes y estudiantes comprendan el sistema sin depender de conocimiento informal.
+Esta carpeta contiene la documentación técnica y contextual del proyecto **CREA INACAP**. Su objetivo es facilitar la continuidad institucional y permitir que futuros coordinadores, docentes y estudiantes comprendan el sistema sin depender de conocimiento informal.
 
 ## Archivos
 

@@ -773,7 +773,7 @@ Promt para imágenes
 Analiza todas las imágenes adjuntas del proyecto y crea UNA NUEVA IMAGEN DE PORTADA profesional basada en ellas.
 
 OBJETIVO:
-Generar una portada institucional para un proyecto de FABLAB INACAP RENCA que represente visualmente el proceso, la tecnología utilizada y el resultado final del proyecto.
+Generar una portada institucional para un proyecto de CREA INACAP que represente visualmente el proceso, la tecnología utilizada y el resultado final del proyecto.
 
 INSTRUCCIONES:
 
@@ -834,4 +834,3 @@ FORMATO FINAL:
 RESULTADO ESPERADO:
 
 Una imagen de portada única, visualmente impactante y profesional, construida a partir de las fotografías proporcionadas, que comunique claramente el proyecto y contenga únicamente el nombre del proyecto como texto principal.
-

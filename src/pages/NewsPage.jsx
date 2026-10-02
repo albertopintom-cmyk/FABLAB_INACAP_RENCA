@@ -57,7 +57,7 @@ export default function NewsPage() {
           Actualidad
         </p>
         <h1 style={{ margin: 0, color: '#101828', fontSize: 'clamp(2rem, 4vw, 3rem)', lineHeight: 1.1 }}>
-          Noticias FABLAB
+          Noticias CREA INACAP
         </h1>
       </header>
 

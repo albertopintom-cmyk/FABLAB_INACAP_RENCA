@@ -161,9 +161,9 @@ export default function NewsAdmin({ onSectionChange, onLogout }) {
   return (
     <main className="admin-page">
       <header className="admin-page-header">
-        <a className="brand" href="/" aria-label="FABLAB INACAP Renca, inicio">
-          <span className="brand-mark">F</span>
-          <span><strong>FABLAB</strong><small>INACAP RENCA</small></span>
+        <a className="brand" href="/" aria-label="CREA INACAP, inicio">
+          <span className="brand-mark">C</span>
+          <span><strong>CREA INACAP</strong></span>
         </a>
 
         <nav className="admin-nav" aria-label="Secciones del panel admin">
@@ -188,7 +188,7 @@ export default function NewsAdmin({ onSectionChange, onLogout }) {
           <form onSubmit={submitForm}>
             <label>
               Título
-              <input name="title" value={form.title} onChange={updateField} placeholder="Ej. Nueva convocatoria del FabLab" />
+              <input name="title" value={form.title} onChange={updateField} placeholder="Ej. Nueva convocatoria de CREA INACAP" />
             </label>
 
             <label>
